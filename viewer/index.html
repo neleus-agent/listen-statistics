@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Library Overview</title>
+<!-- Listen Statistics viewer (@neleus/listen-statistics). MIT. Fully offline: the CSV is read in your browser and never uploaded. -->
+<style>
+:root {
+  color-scheme: light;
+  --surface-0: #f4f3ef; --surface-1: #fcfcfb; --border: #e2e0d8;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #7a7973;
+  --series-1: #2a78d6; --track: #ecebe6; --accent-soft: #e6effa;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --surface-0: #111110; --surface-1: #1a1a19; --border: #2e2d2a;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8e86;
+    --series-1: #3987e5; --track: #262624; --accent-soft: #1c2a3c;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-0: #111110; --surface-1: #1a1a19; --border: #2e2d2a;
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8e86;
+  --series-1: #3987e5; --track: #262624; --accent-soft: #1c2a3c;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface-0); color: var(--text-primary);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1180px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+h2 { font-size: 14px; font-weight: 600; margin: 0 0 12px; }
+.sub { color: var(--text-secondary); margin: 0 0 20px; }
+.drop { border: 2px dashed var(--border); border-radius: 12px; background: var(--surface-1);
+  padding: 40px 16px; text-align: center; color: var(--text-secondary); cursor: pointer; }
+.drop.over { border-color: var(--series-1); background: var(--accent-soft); }
+.drop strong { color: var(--text-primary); }
+.drop input { display: none; }
+.filters { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; margin: 0 0 20px; }
+.filters label { color: var(--text-secondary); font-size: 13px; display: flex; gap: 8px; align-items: center; }
+select, input[type=search] { font: inherit; color: var(--text-primary); background: var(--surface-1);
+  border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; max-width: 260px; }
+button { font: inherit; font-size: 13px; color: var(--text-secondary); background: none; border: 1px solid var(--border);
+  border-radius: 8px; padding: 5px 10px; cursor: pointer; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+.tile .v { font-size: 26px; font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.tile .l { color: var(--text-secondary); font-size: 13px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 16px; }
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-width: 0; }
+.card.wide { grid-column: 1 / -1; }
+.note { color: var(--text-muted); font-size: 12px; margin: 8px 0 0; }
+.bars { display: grid; grid-template-columns: minmax(90px, 38%) 1fr auto; gap: 6px 10px; align-items: center; }
+.bars .lab { font-size: 13px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bars .bar { height: 14px; background: transparent; position: relative; }
+.bars .bar i { display: block; height: 100%; background: var(--series-1); border-radius: 0 4px 4px 0; min-width: 2px; }
+.bars .val { font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; text-align: right; }
+.bars .row-hit { display: contents; }
+.cols { display: flex; align-items: flex-end; gap: 2px; height: 180px; border-bottom: 1px solid var(--border); }
+.cols .c { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; min-width: 0; }
+.cols .c i { display: block; width: min(24px, 80%); background: var(--series-1); border-radius: 4px 4px 0 0; }
+.cols .c .cv { font-size: 11px; color: var(--text-secondary); margin-bottom: 2px; font-variant-numeric: tabular-nums; }
+.axis { display: flex; gap: 2px; }
+.axis span { flex: 1; text-align: center; font-size: 11px; color: var(--text-muted); min-width: 0; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; color: var(--text-secondary); font-weight: 600; border-bottom: 1px solid var(--border); padding: 6px 8px; position: sticky; top: 0; background: var(--surface-1); }
+td { border-bottom: 1px solid var(--border); padding: 5px 8px; vertical-align: top; }
+td.n { text-align: right; font-variant-numeric: tabular-nums; }
+.tablewrap { max-height: 420px; overflow: auto; }
+.tip { position: fixed; pointer-events: none; background: var(--text-primary); color: var(--surface-1); font-size: 12px;
+  padding: 6px 8px; border-radius: 6px; opacity: 0; transition: opacity .08s; z-index: 10; max-width: 280px; }
+.hidden { display: none !important; }
+.row-hover:hover .lab, .row-hover:hover .val { color: var(--text-primary); }
+footer { color: var(--text-muted); font-size: 12px; margin-top: 28px; }
+.section-h { font-size: 17px; font-weight: 650; margin: 28px 0 4px; }
+.section-sub { color: var(--text-secondary); font-size: 13px; margin: 0 0 14px; }
+.muted { font-weight: 400; color: var(--text-muted); }
+@media (max-width: 520px) { .grid { grid-template-columns: 1fr; } .bars { grid-template-columns: minmax(80px, 42%) 1fr auto; } }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Library overview</h1>
+  <p class="sub">Drop <code>tracks-history.csv</code> (from <code>import-history</code>), <code>tracks-enriched.csv</code> or <code>tracks.csv</code>. Everything stays on this computer.</p>
+
+  <label class="drop" id="drop">
+    <input type="file" id="file" accept=".csv,text/csv">
+    <strong>Drop your CSV here</strong> or click to choose a file
+  </label>
+
+  <section id="app" class="hidden">
+    <div class="filters">
+      <button id="reset" type="button">Load another file</button>
+      <button id="theme" type="button" aria-label="Toggle dark mode">Theme</button>
+    </div>
+
+    <section id="life" class="hidden">
+      <h2 class="section-h">Your listening life</h2>
+      <p class="section-sub" id="lifeSub"></p>
+      <div class="tiles" id="lifeTiles"></div>
+      <div class="grid">
+        <div class="card wide"><h2>Plays per year <span class="muted" id="yearsSrc"></span></h2><div id="lifeYears"></div><p class="note" id="lifeYearsNote"></p></div>
+        <div class="card wide filters" style="margin:0"><label>Year <select id="lifeYear"></select></label><span class="note" id="lifeYearNote" style="margin:0"></span></div>
+        <div class="card"><h2>Top artists <span class="muted" id="lifeArtistsSpan"></span></h2><div id="lifeArtists" class="bars"></div></div>
+        <div class="card"><h2>Top songs <span class="muted" id="lifeTracksSpan"></span></h2><div class="tablewrap"><table id="lifeTracks"></table></div></div>
+        <div class="card wide"><h2>Forgotten favourites <span class="muted">(played a lot, then not for 2+ years)</span></h2>
+          <div class="tablewrap"><table id="forgotten"></table></div><p class="note" id="forgottenNote"></p></div>
+        <div class="card"><h2>Songs you skip most <span class="muted">(at least 10 starts)</span></h2>
+          <div class="tablewrap"><table id="skips"></table></div><p class="note" id="skipsNote"></p></div>
+        <div class="card"><h2>Played a lot, in no playlist</h2>
+          <div class="tablewrap"><table id="orphans"></table></div><p class="note" id="orphansNote"></p></div>
+      </div>
+      <h2 class="section-h">Your library</h2>
+      <p class="section-sub">Your playlists and Liked Songs as exported. The playlist filter applies to this part only.</p>
+    </section>
+
+    <div class="filters">
+      <label>Playlist <select id="pl"></select></label>
+      <label><input type="checkbox" id="uniq" checked> Count each song once</label>
+    </div>
+    <div class="tiles" id="tiles"></div>
+    <div class="grid">
+      <div class="card"><h2>Genres</h2><div id="genres" class="bars"></div><p class="note" id="genresNote"></p></div>
+      <div class="card"><h2>Artist countries</h2><div id="countries" class="bars"></div><p class="note" id="countriesNote"></p></div>
+      <div class="card wide"><h2>Decades <span id="decadeSrc" style="font-weight:400;color:var(--text-muted)"></span></h2><div id="decades"></div></div>
+      <div class="card"><h2>Top artists</h2><div id="artists" class="bars"></div></div>
+      <div class="card"><h2>Playlists by size</h2><div id="playlists" class="bars"></div></div>
+      <div class="card wide"><h2>Most popular songs <span style="font-weight:400;color:var(--text-muted)">(0-100 = percentile within this library, from Deezer rank, ListenBrainz and Last.fm listeners)</span></h2>
+        <div class="tablewrap"><table id="popular"></table></div><p class="note" id="popularNote"></p></div>
+      <div class="card wide"><h2>Highest-rated albums <span style="font-weight:400;color:var(--text-muted)">(MusicBrainz, at least 3 votes)</span></h2>
+        <div class="tablewrap"><table id="rated"></table></div><p class="note" id="ratedNote"></p></div>
+      <div class="card wide"><h2>Tracks</h2>
+        <div class="filters" style="margin-bottom:10px"><input type="search" id="q" style="width:100%;max-width:420px" placeholder="Search track, artist, album, genre, country">
+          <label>Sort <select id="sort"><option value="">Playlist order</option><option value="pop">Most popular first</option><option value="popasc">Least popular first</option><option value="year">Oldest first</option></select></label></div>
+        <div class="tablewrap"><table id="tracks"></table></div><p class="note" id="tracksNote"></p></div>
+    </div>
+    <footer>Data: Spotify Web API, MusicBrainz (CC0), ListenBrainz and Deezer. Listen Statistics (@neleus/listen-statistics), MIT licence.</footer>
+  </section>
+</main>
+<div class="tip" id="tip" role="tooltip"></div>
+<script>
+"use strict";
+// The product name lives here and in the README heading only, so a rename is two edits.
+const PRODUCT_NAME = "Listen Statistics";
+document.title = PRODUCT_NAME;
+document.getElementById("title").textContent = PRODUCT_NAME;
+
+// ---- CSV (RFC 4180)-------------------------------------------------------
+function parseCsv(text) {
+  const s = text.replace(/^\uFEFF/, ""); const recs = []; let f = "", r = [], q = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (q) { if (c === '"') { if (s[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true;
+    else if (c === ",") { r.push(f); f = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && s[i + 1] === "\n") i++; r.push(f); recs.push(r); r = []; f = ""; }
+    else f += c;
+  }
+  if (f !== "" || r.length) { r.push(f); recs.push(r); }
+  const [h = [], ...body] = recs.filter((x) => !(x.length === 1 && x[0] === ""));
+  return body.map((x) => Object.fromEntries(h.map((k, i) => [k, x[i] ?? ""])));
+}
+
+// ---- helpers ----------------------------------------------------------------
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const fmt = (n) => n.toLocaleString();
+const split = (s) => (s || "").split(";").map((x) => x.trim()).filter(Boolean);
+let regionNames = null;
+try { regionNames = new Intl.DisplayNames([navigator.language || "en"], { type: "region" }); } catch (e) { /* older browser */ }
+const countryName = (cc) => { if (!cc) return ""; if (cc === "XW") return "Worldwide"; if (cc === "XE") return "Europe"; try { return regionNames ? regionNames.of(cc) : cc; } catch (e) { return cc; } };
+const genresOf = (r) => split(r.mb_genres).length ? split(r.mb_genres) : split(r.genres);
+const yearOf = (r) => r.original_year || r.year || "";
+const parseDur = (r) => { const ms = Number(r.duration_ms); if (ms) return ms; const m = /^(\d+):(\d\d)$/.exec(r.duration || ""); return m ? (Number(m[1]) * 60 + Number(m[2])) * 1000 : 0; };
+
+function count(rows, keyFn) {
+  const m = new Map();
+  for (const r of rows) for (const k of [].concat(keyFn(r))) if (k) m.set(k, (m.get(k) || 0) + 1);
+  return [...m.entries()].sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0])));
+}
+
+// ---- tooltip ------------------------------------------------------------------
+const tip = $("tip");
+document.addEventListener("pointermove", (e) => {
+  const t = e.target.closest("[data-tip]");
+  if (!t) { tip.style.opacity = 0; return; }
+  tip.textContent = t.dataset.tip; tip.style.opacity = 1;
+  const x = Math.min(e.clientX + 12, innerWidth - tip.offsetWidth - 8);
+  tip.style.left = x + "px"; tip.style.top = (e.clientY + 14) + "px";
+});
+
+// ---- charts -------------------------------------------------------------------
+function bars(el, entries, total, { limit = 12, label = (k) => k, unit = "songs" } = {}) {
+  const top = entries.slice(0, limit); const max = top.length ? top[0][1] : 1;
+  el.innerHTML = top.map(([k, v]) => {
+    const pct = total ? (v / total * 100) : 0;
+    const t = `${label(k)}: ${fmt(v)} ${unit} (${pct.toFixed(1)}%)`;
+    return `<div class="row-hit row-hover" data-tip="${esc(t)}" style="display:contents">
+      <span class="lab" data-tip="${esc(t)}">${esc(label(k))}</span>
+      <span class="bar" data-tip="${esc(t)}"><i style="width:${(v / max * 100).toFixed(2)}%" data-tip="${esc(t)}"></i></span>
+      <span class="val" data-tip="${esc(t)}">${fmt(v)}</span></div>`;
+  }).join("") || `<span class="lab">No data in this file.</span>`;
+}
+
+function columns(el, entries, unit = "songs") {
+  if (!entries.length) { el.innerHTML = `<span class="note">No years in this file.</span>`; return; }
+  const max = Math.max(...entries.map((e) => e[1]));
+  el.innerHTML = `<div class="cols">${entries.map(([k, v]) => `<div class="c" data-tip="${esc(`${k}: ${fmt(v)} ${unit}`)}">
+      <span class="cv">${v / max > 0.06 ? fmt(v) : ""}</span><i style="height:${Math.max(v / max * 150, 2)}px" data-tip="${esc(`${k}: ${fmt(v)} ${unit}`)}"></i></div>`).join("")}</div>
+    <div class="axis">${entries.map(([k]) => `<span>${esc(k)}</span>`).join("")}</div>`;
+}
+
+// ---- state + render -------------------------------------------------------------
+let ALL = []; // every row in the file
+let LIB = []; // library rows only (tracks-history.csv also holds songs you played that are in no playlist)
+function current() {
+  const pl = $("pl").value;
+  let rows = pl ? LIB.filter((r) => r.playlist === pl) : LIB;
+  if ($("uniq").checked) { const seen = new Set(); rows = rows.filter((r) => { const k = r.track_uri || `${r.track}|${r.artists}`; if (seen.has(k)) return false; seen.add(k); return true; }); }
+  return rows;
+}
+
+function render() {
+  const rows = current(); const n = rows.length;
+  const artists = new Set(rows.flatMap((r) => split(r.artists)));
+  const hours = rows.reduce((s, r) => s + parseDur(r), 0) / 3.6e6;
+  const withGenre = rows.filter((r) => genresOf(r).length).length;
+  const countries = new Set(rows.map((r) => r.artist_country).filter(Boolean));
+  const playlists = new Set(rows.map((r) => r.playlist));
+  const years = rows.map((r) => Number(yearOf(r))).filter((y) => y > 1800);
+  const median = years.length ? years.sort((a, b) => a - b)[Math.floor(years.length / 2)] : "";
+  $("tiles").innerHTML = [
+    [fmt(n), $("uniq").checked ? "songs" : "playlist entries"], [fmt(artists.size), "artists"], [fmt(playlists.size), "playlists"],
+    [fmt(Math.round(hours)), "hours of music"], [countries.size ? fmt(countries.size) : "n/a", "artist countries"],
+    [median || "n/a", "median year"], [n ? Math.round(withGenre / n * 100) + "%" : "n/a", "with a genre"],
+  ].map(([v, l]) => `<div class="tile"><div class="v">${esc(v)}</div><div class="l">${esc(l)}</div></div>`).join("");
+
+  const hasMb = rows.some((r) => "mb_match" in r);
+  const prim = (r) => r.primary_genre || genresOf(r)[0] || "";
+  bars($("genres"), count(rows, prim), n, { limit: 14 });
+  $("genresNote").textContent = `Main genre per song${hasMb ? " (MusicBrainz, recording first, then artist)" : " (Spotify artist genres)"}. ${fmt(n - withGenre)} songs have none.`;
+
+  const cc = count(rows, (r) => r.artist_country);
+  bars($("countries"), cc, n, { limit: 14, label: countryName });
+  const noC = rows.filter((r) => !r.artist_country).length;
+  $("countriesNote").textContent = hasMb ? `Country of the first credited artist. ${fmt(noC)} songs unknown.` : "Run `mcp-spotify enrich` to add artist countries.";
+
+  const dec = count(rows, (r) => { const y = Number(yearOf(r)); return y > 1800 ? `${Math.floor(y / 10) * 10}s` : ""; }).sort((a, b) => a[0].localeCompare(b[0]));
+  columns($("decades"), dec);
+  $("decadeSrc").textContent = hasMb ? "(original release year where MusicBrainz knows it, else Spotify's)" : "(Spotify release year; remasters count as their reissue year)";
+
+  bars($("artists"), count(rows, (r) => split(r.artists)[0] || ""), n, { limit: 12 });
+  const plEntries = count(LIB.filter((r) => !$("pl").value || r.playlist === $("pl").value), (r) => r.playlist);
+  bars($("playlists"), plEntries, plEntries.reduce((s, e) => s + e[1], 0), { limit: 14, unit: "entries" });
+
+  // highest-rated albums
+  const albums = new Map();
+  for (const r of rows) {
+    if (!r.album_rating || Number(r.album_rating_votes) < 3) continue;
+    const k = r.mb_release_group_id || `${r.album}|${split(r.artists)[0]}`;
+    const a = albums.get(k) || { album: r.album, artist: split(r.artists)[0], rating: Number(r.album_rating), votes: Number(r.album_rating_votes), year: yearOf(r), songs: 0 };
+    a.songs++; albums.set(k, a);
+  }
+  const top = [...albums.values()].sort((a, b) => b.rating - a.rating || b.votes - a.votes).slice(0, 50);
+  $("rated").innerHTML = top.length ? `<thead><tr><th>Album</th><th>Artist</th><th>Year</th><th class="n">Rating /5</th><th class="n">Votes</th><th class="n">Your songs</th></tr></thead><tbody>${top.map((a) =>
+    `<tr><td>${esc(a.album)}</td><td>${esc(a.artist)}</td><td>${esc(a.year)}</td><td class="n">${a.rating.toFixed(2)}</td><td class="n">${a.votes}</td><td class="n">${a.songs}</td></tr>`).join("")}</tbody>` : "";
+  $("ratedNote").textContent = top.length ? `${albums.size} rated albums in this view.` : (rows.some((r) => "album_rating" in r) ? "No album with 3+ votes yet. Run `mcp-spotify enrich --ratings` to look up more." : "Run `mcp-spotify enrich --ratings` to add album ratings.");
+  // most popular songs
+  const pop = rows.filter((r) => r.popularity !== undefined && r.popularity !== "").sort((a, b) => Number(b.popularity) - Number(a.popularity) || Number(b.deezer_rank || 0) - Number(a.deezer_rank || 0)).slice(0, 50);
+  $("popular").innerHTML = pop.length ? `<thead><tr><th>Track</th><th>Artist</th><th>Year</th><th>Genre</th><th class="n">Popularity</th><th class="n">Deezer rank</th><th class="n">LB listeners</th><th class="n">Last.fm listeners</th><th class="n">Your plays</th></tr></thead><tbody>${pop.map((r) =>
+    `<tr><td>${esc(r.track)}</td><td>${esc(split(r.artists)[0])}</td><td>${esc(yearOf(r))}</td><td>${esc(genresOf(r)[0] || "")}</td><td class="n">${esc(r.popularity)}</td><td class="n">${r.deezer_rank ? fmt(Number(r.deezer_rank)) : ""}</td><td class="n">${r.lb_listeners ? fmt(Number(r.lb_listeners)) : ""}</td><td class="n">${r.lastfm_listeners ? fmt(Number(r.lastfm_listeners)) : ""}</td><td class="n">${r.my_plays && r.my_plays !== "0" ? fmt(Number(r.my_plays)) : ""}</td></tr>`).join("")}</tbody>` : "";
+  const scored = rows.filter((r) => r.popularity).length;
+  $("popularNote").textContent = "popularity" in (rows[0] || {}) ? `${fmt(scored)} of ${fmt(rows.length)} songs scored. Use Sort in Tracks for the full list, or "Least popular first" for the lesser heroes.` : "Run `mcp-spotify enrich --popularity` to add song popularity.";
+  renderTracks();
+}
+
+function renderTracks() {
+  const q = $("q").value.trim().toLowerCase();
+  const rows = current().filter((r) => !q || [r.track, r.artists, r.album, r.mb_genres, r.genres, countryName(r.artist_country), r.playlist].join(" ").toLowerCase().includes(q));
+  const sort = $("sort").value; const num = (v) => (v === "" || v === undefined ? NaN : Number(v));
+  if (sort === "pop" || sort === "popasc") {
+    const dir = sort === "pop" ? -1 : 1;
+    rows.sort((a, b) => { const x = num(a.popularity), y = num(b.popularity); if (isNaN(x)) return 1; if (isNaN(y)) return -1; return dir * (x - y); });
+  } else if (sort === "year") rows.sort((a, b) => (yearOf(a) || "9999").localeCompare(yearOf(b) || "9999"));
+  const shown = rows.slice(0, 300);
+  $("tracks").innerHTML = `<thead><tr><th>Track</th><th>Artist</th><th>Album</th><th>Year</th><th>Genre</th><th>Country</th><th class="n">Pop.</th><th>Playlist</th></tr></thead><tbody>${shown.map((r) =>
+    `<tr><td>${esc(r.track)}</td><td>${esc(split(r.artists).join(", "))}</td><td>${esc(r.album)}</td><td>${esc(yearOf(r))}</td><td>${esc(genresOf(r).slice(0, 2).join(", "))}</td><td>${esc(countryName(r.artist_country))}</td><td class="n">${esc(r.popularity || "")}</td><td>${esc(r.playlist)}</td></tr>`).join("")}</tbody>`;
+  $("tracksNote").textContent = `${fmt(rows.length)} matching${rows.length > shown.length ? `, first ${shown.length} shown` : ""}.`;
+}
+
+// ---- listening life (tracks-history.csv from `import-history`) ---------------------
+let SONGS = []; // one entry per track with history columns
+const n0 = (v) => Number(v) || 0;
+const byYear = (r) => split(r.hist_plays_by_year).map((p) => p.split(":")).filter((p) => p.length === 2).map(([y, n]) => [y, Number(n)]);
+const playsIn = (r, y) => { if (!y) return n0(r.hist_plays); const hit = byYear(r).find((p) => p[0] === y); return hit ? hit[1] : 0; };
+const starts = (r) => ("hist_streams" in r ? n0(r.hist_streams) : n0(r.hist_plays));
+const first = (r) => split(r.artists)[0] || "";
+
+function songTable(el, rows, cols) {
+  el.innerHTML = rows.length ? `<thead><tr>${cols.map(([h, , n]) => `<th${n ? ' class="n"' : ""}>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r) =>
+    `<tr>${cols.map(([, f, n]) => `<td${n ? ' class="n"' : ""}>${esc(f(r))}</td>`).join("")}</tr>`).join("")}</tbody>` : "";
+}
+
+function renderLife() {
+  const seen = new Set();
+  SONGS = ALL.filter((r) => { const k = r.track_uri || `${r.track}|${r.artists}`; if (seen.has(k)) return false; seen.add(k); return true; });
+  const played = SONGS.filter((r) => n0(r.hist_plays) > 0);
+  const plays = played.reduce((s, r) => s + n0(r.hist_plays), 0);
+  const minutes = SONGS.reduce((s, r) => s + n0(r.hist_minutes), 0);
+  const totStarts = SONGS.reduce((s, r) => s + starts(r), 0);
+  const skipped = SONGS.reduce((s, r) => s + n0(r.hist_skip_rate) * starts(r), 0);
+  const dates = SONGS.flatMap((r) => [r.hist_first_played, r.hist_last_played]).filter(Boolean).sort();
+  const hasOrphanCol = SONGS.some((r) => "in_library" in r);
+  const orphanAll = SONGS.filter((r) => r.in_library === "false" && n0(r.hist_plays) > 0);
+  $("lifeSub").textContent = dates.length ? `From ${dates[0]} to ${dates[dates.length - 1]}, from your Spotify streaming history. A play counts from 30 seconds, like Spotify counts it. Not filtered by playlist.` : "";
+  $("lifeTiles").innerHTML = [
+    [fmt(plays), "plays"], [fmt(Math.round(minutes / 60)), "hours listened"], [fmt(played.length), "different songs"],
+    [fmt(new Set(played.map(first).filter(Boolean)).size), "artists"],
+    [totStarts ? Math.round(skipped / totStarts * 100) + "%" : "n/a", "of starts skipped"],
+    [hasOrphanCol ? fmt(orphanAll.length) : "n/a", "played, in no playlist"],
+  ].map(([v, l]) => `<div class="tile"><div class="v">${esc(v)}</div><div class="l">${esc(l)}</div></div>`).join("");
+
+  // plays per year: exact from hist_plays_by_year; older files only have each song's peak year
+  const exact = SONGS.some((r) => r.hist_plays_by_year);
+  const ym = new Map();
+  for (const r of SONGS) {
+    if (exact) for (const [y, n] of byYear(r)) ym.set(y, (ym.get(y) || 0) + n);
+    else if (r.hist_peak_year) ym.set(r.hist_peak_year, (ym.get(r.hist_peak_year) || 0) + n0(r.hist_plays));
+  }
+  const years = [...ym.keys()].sort();
+  columns($("lifeYears"), years.map((y) => [y, ym.get(y)]), "plays");
+  $("yearsSrc").textContent = exact ? "" : "(approximate: each song counted in its peak year)";
+  $("lifeYearsNote").textContent = exact ? "" : "Run import-history again with this version to get exact plays per year and the per-year top lists.";
+  $("lifeYear").innerHTML = `<option value="">All time</option>` + (exact ? years.slice().reverse().map((y) => `<option>${esc(y)}</option>`).join("") : "");
+  $("lifeYearNote").textContent = "Top artists and songs for the chosen year.";
+  renderLifeYear();
+
+  // forgotten favourites: anchored on the newest play in the file, so an older export still makes sense
+  const end = dates[dates.length - 1] || "";
+  const cutoff = end ? `${Number(end.slice(0, 4)) - 2}${end.slice(4)}` : "";
+  const forgotten = SONGS.filter((r) => n0(r.hist_plays) >= 10 && r.hist_last_played && r.hist_last_played < cutoff).sort((a, b) => n0(b.hist_plays) - n0(a.hist_plays)).slice(0, 60);
+  songTable($("forgotten"), forgotten, [["Song", (r) => r.track], ["Artist", first], ["Plays", (r) => fmt(n0(r.hist_plays)), 1], ["Peak year", (r) => r.hist_peak_year], ["Last played", (r) => r.hist_last_played], ["In a playlist", (r) => (r.in_library === "false" ? "no" : "yes")]]);
+  $("forgottenNote").textContent = forgotten.length ? `Songs with 10 or more plays and none since ${cutoff}. Ask your agent to make a playlist of them.` : "None yet: no song with 10+ plays has gone quiet for two years.";
+
+  const skips = SONGS.filter((r) => starts(r) >= 10 && r.hist_skip_rate !== "").sort((a, b) => n0(b.hist_skip_rate) - n0(a.hist_skip_rate) || starts(b) - starts(a)).slice(0, 40);
+  songTable($("skips"), skips, [["Song", (r) => r.track], ["Artist", first], ["Skipped", (r) => Math.round(n0(r.hist_skip_rate) * 100) + "%", 1], ["Starts", (r) => fmt(starts(r)), 1]]);
+  $("skipsNote").textContent = skips.length ? `Your average is ${totStarts ? Math.round(skipped / totStarts * 100) : 0}% of starts skipped.` : "No song with 10 or more starts yet.";
+
+  const orphans = orphanAll.filter((r) => n0(r.hist_plays) >= 5).sort((a, b) => n0(b.hist_plays) - n0(a.hist_plays)).slice(0, 60);
+  songTable($("orphans"), orphans, [["Song", (r) => r.track], ["Artist", first], ["Plays", (r) => fmt(n0(r.hist_plays)), 1], ["Last played", (r) => r.hist_last_played]]);
+  $("orphansNote").textContent = !hasOrphanCol ? "Run import-history again with this version to see songs that are in no playlist." : orphans.length ? "Songs with 5 or more plays that are in none of your exported playlists or Liked Songs." : "Every song you played 5+ times is already in a playlist.";
+}
+
+function renderLifeYear() {
+  const y = $("lifeYear").value;
+  const label = y ? `(${y})` : "(all time)";
+  $("lifeArtistsSpan").textContent = label; $("lifeTracksSpan").textContent = label;
+  const am = new Map();
+  for (const r of SONGS) { const p = playsIn(r, y); const a = first(r); if (p && a) am.set(a, (am.get(a) || 0) + p); }
+  const ae = [...am.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  bars($("lifeArtists"), ae, ae.reduce((s, e) => s + e[1], 0), { limit: 15, unit: "plays" });
+  const top = SONGS.filter((r) => playsIn(r, y) > 0).sort((a, b) => playsIn(b, y) - playsIn(a, y)).slice(0, 30);
+  songTable($("lifeTracks"), top, [["Song", (r) => r.track], ["Artist", first], ["Plays", (r) => fmt(playsIn(r, y)), 1]]);
+}
+
+function load(text) {
+  ALL = parseCsv(text).filter((r) => r.track);
+  if (!ALL.length || !("playlist" in ALL[0])) { alert("This does not look like an mcp-spotify tracks CSV."); return; }
+  LIB = ALL.filter((r) => r.in_library !== "false");
+  const hasHist = "hist_plays" in ALL[0];
+  $("life").classList.toggle("hidden", !hasHist);
+  if (hasHist) renderLife();
+  const names = [...new Set(LIB.map((r) => r.playlist))].sort((a, b) => a.localeCompare(b));
+  $("pl").innerHTML = `<option value="">All playlists</option>` + names.map((n) => `<option>${esc(n)}</option>`).join("");
+  $("drop").classList.add("hidden"); $("app").classList.remove("hidden");
+  render();
+}
+
+// ---- wiring ---------------------------------------------------------------------
+const readFile = (f) => f && f.text().then(load);
+$("file").addEventListener("change", (e) => readFile(e.target.files[0]));
+const drop = $("drop");
+["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", (e) => readFile(e.dataTransfer.files[0]));
+document.addEventListener("dragover", (e) => e.preventDefault());
+document.addEventListener("drop", (e) => { e.preventDefault(); if (e.target.closest("#drop")) return; readFile(e.dataTransfer.files[0]); });
+$("pl").addEventListener("change", render);
+$("uniq").addEventListener("change", render);
+$("q").addEventListener("input", renderTracks);
+$("sort").addEventListener("change", renderTracks);
+$("lifeYear").addEventListener("change", renderLifeYear);
+// Served by `npm run dashboard` (127.0.0.1 only): load the CSV it serves. Opened as a file: drop zone as before.
+if (location.protocol === "http:") fetch("data.csv", { cache: "no-store" }).then((r) => (r.ok ? r.text() : null)).then((t) => t && load(t)).catch(() => {});
+$("reset").addEventListener("click", () => { $("app").classList.add("hidden"); $("drop").classList.remove("hidden"); $("file").value = ""; });
+$("theme").addEventListener("click", () => {
+  const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.dataset.theme = dark ? "light" : "dark";
+});
+</script>
+</body>
+</html>

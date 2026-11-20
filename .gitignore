@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+*.log
+# local rotating token store (never commit)
+spotify.json
+# Your listening data never enters git: library exports, the Spotify privacy export, any JSON dump.
+*.csv
+*.zip
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+my_spotify_data*
+Streaming_History*

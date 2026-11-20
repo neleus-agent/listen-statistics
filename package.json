@@ -1,0 +1,46 @@
+{
+  "name": "@neleus/listen-statistics",
+  "version": "0.3.0",
+  "description": "Listen Statistics: a free, local dashboard of your whole listening life for Spotify (history import, free enrichment, 127.0.0.1 dashboard). Includes an MCP server for Spotify.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "listen-statistics": "./dist/index.js",
+    "mcp-spotify": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "viewer",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "start": "node dist/index.js",
+    "dashboard": "node dist/index.js dashboard",
+    "import-history": "node dist/index.js import-history",
+    "gate": "node scripts/public-gate.mjs",
+    "hooks": "node scripts/install-hooks.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@spotify/web-api-ts-sdk": "^1.2.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
