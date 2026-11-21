@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Library Overview</title>
-<!-- Listen Statistics viewer (@neleus/listen-statistics). MIT. Fully offline: the CSV is read in your browser and never uploaded. -->
+<!-- Golden Hour Selector viewer (@neleus/golden-hour-selector). MIT. Fully offline: the CSV is read in your browser and never uploaded. -->
 <style>
 :root {
   color-scheme: light;
@@ -136,14 +136,14 @@ footer { color: var(--text-muted); font-size: 12px; margin-top: 28px; }
           <label>Sort <select id="sort"><option value="">Playlist order</option><option value="pop">Most popular first</option><option value="popasc">Least popular first</option><option value="year">Oldest first</option></select></label></div>
         <div class="tablewrap"><table id="tracks"></table></div><p class="note" id="tracksNote"></p></div>
     </div>
-    <footer>Data: Spotify Web API, MusicBrainz (CC0), ListenBrainz and Deezer. Listen Statistics (@neleus/listen-statistics), MIT licence.</footer>
+    <footer>Data: Spotify Web API, MusicBrainz (CC0), ListenBrainz and Deezer. Golden Hour Selector (@neleus/golden-hour-selector), MIT licence.</footer>
   </section>
 </main>
 <div class="tip" id="tip" role="tooltip"></div>
 <script>
 "use strict";
 // The product name lives here and in the README heading only, so a rename is two edits.
-const PRODUCT_NAME = "Listen Statistics";
+const PRODUCT_NAME = "Golden Hour Selector";
 document.title = PRODUCT_NAME;
 document.getElementById("title").textContent = PRODUCT_NAME;
 

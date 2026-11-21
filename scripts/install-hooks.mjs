@@ -10,7 +10,8 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const git = (args) => execFileSync("git", args, { cwd: ROOT, encoding: "utf8" }).trim();
-const TAG = "# listen-statistics public gate";
+const TAG = "# golden-hour-selector public gate";
+const OLD_TAGS = ["# listen-statistics public gate"]; // hooks installed under the earlier name are still ours
 
 const top = resolve(git(["rev-parse", "--show-toplevel"]));
 if (top.toLowerCase() !== ROOT.toLowerCase()) {
@@ -23,7 +24,7 @@ const body = `#!/bin/sh\n${TAG}\nexec node scripts/public-gate.mjs\n`;
 let failed = false;
 for (const name of ["pre-commit", "pre-push"]) {
   const path = join(hooksDir, name);
-  if (existsSync(path) && !readFileSync(path, "utf8").includes(TAG) && !process.argv.includes("--force")) {
+  if (existsSync(path) && ![TAG, ...OLD_TAGS].some((t) => readFileSync(path, "utf8").includes(t)) && !process.argv.includes("--force")) {
     console.error(`install-hooks: ${path} already exists and is not ours; left alone (use --force to replace it).`);
     failed = true;
     continue;

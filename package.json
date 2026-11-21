@@ -1,12 +1,12 @@
 {
-  "name": "@neleus/listen-statistics",
-  "version": "0.3.0",
-  "description": "Listen Statistics: a free, local dashboard of your whole listening life for Spotify (history import, free enrichment, 127.0.0.1 dashboard). Includes an MCP server for Spotify.",
+  "name": "@neleus/golden-hour-selector",
+  "version": "0.4.0",
+  "description": "Golden Hour Selector: a free, local dashboard of your whole listening life for Spotify (history import, free enrichment, 127.0.0.1 dashboard). Includes an MCP server for Spotify.",
   "license": "MIT",
   "private": true,
   "type": "module",
   "bin": {
-    "listen-statistics": "./dist/index.js",
+    "golden-hour-selector": "./dist/index.js",
     "mcp-spotify": "./dist/index.js"
   },
   "main": "./dist/index.js",

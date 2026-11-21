@@ -1,16 +1,24 @@
-# Listen Statistics
+# Golden Hour Selector
 
-A free, local dashboard of your whole listening life, for Spotify: every song
-you ever played, joined to your playlists and enriched with genres, countries
-and popularity. It is MIT licensed, free forever, needs no account of ours and
-runs no server anywhere: everything stays on your computer and the dashboard
-only listens on `127.0.0.1`. Package: `@neleus/listen-statistics`.
+Know your music, then build better playlists. Golden Hour Selector is a free,
+local toolkit for Spotify with two halves:
 
-It includes an MCP server for Spotify. The server controls playback and works
-with your library: list your playlists, export them to an enriched CSV, create
-playlists and add tracks. It runs locally over stdio, uses OAuth Authorization
+- **A dashboard of your whole listening life**: every song you ever played,
+  joined to your playlists and enriched with genres, countries and popularity.
+- **A playlist builder**: an MCP server your agent uses to search, export and
+  create playlists from your own library. It is the tool behind our curated
+  Golden Hour Selection playlists, such as
+  [Bristol After Dark](https://open.spotify.com/playlist/455m0qO9hcD4Q3190k348L).
+
+It is MIT licensed, free forever, needs no account of ours and runs no server
+anywhere: everything stays on your computer and the dashboard only listens on
+`127.0.0.1`. Package: `@neleus/golden-hour-selector`.
+
+The MCP server also controls playback and works with your library: list your
+playlists, export them to an enriched CSV, create playlists and add tracks.
+It runs locally over stdio, uses OAuth Authorization
 Code + PKCE (no client secret), and keeps its token on your own machine. Its
-command is available as both `listen-statistics` and `mcp-spotify`, so
+command is available as both `golden-hour-selector` and `mcp-spotify`, so
 existing MCP setups keep working.
 
 Free to use, fork and change under the MIT licence. Built and governed inside
@@ -48,7 +56,7 @@ Spotify requires the app owner to have Premium for development apps.
 ### 3. Install and authorise (your agent can do this)
 
 ```sh
-git clone https://github.com/neleus-agent/listen-statistics && cd listen-statistics
+git clone https://github.com/neleus-agent/golden-hour-selector && cd golden-hour-selector
 npm install && npm run build
 SPOTIFY_CLIENT_ID=<your id> node dist/index.js auth          # opens your browser once
 SPOTIFY_CLIENT_ID=<your id> node dist/index.js auth status   # should say all scopes granted
@@ -292,8 +300,8 @@ three layers make sure it stays out:
   network address (loopback and documentation ranges are fine) or a personal
   streaming-history key; or if a file or any past revision contains a line
   from your own private markers file. That optional file lives outside the
-  repository, at `~/.ai/listen-statistics/private-markers.txt` (or the path in
-  `LISTEN_STATS_PRIVATE_MARKERS`): put your name, usernames and device or room
+  repository, at `~/.ai/golden-hour-selector/private-markers.txt` (or the path in
+  `GOLDEN_HOUR_SELECTOR_PRIVATE_MARKERS`): put your name, usernames and device or room
   names in it, one per line. `npm run hooks` runs the gate before every commit
   and push.
 - **CI.** Every push and pull request runs the build, the tests (including

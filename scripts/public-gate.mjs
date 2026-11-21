@@ -10,7 +10,7 @@
 //   2. no tracked file contains a network address (loopback and documentation ranges allowed) or a
 //      personal streaming-history key;
 //   3. no tracked file and no revision in history contains a line from your OPTIONAL private markers file
-//      (LISTEN_STATS_PRIVATE_MARKERS, default ~/.ai/listen-statistics/private-markers.txt). Put things there
+//      (GOLDEN_HOUR_SELECTOR_PRIVATE_MARKERS, default ~/.ai/golden-hour-selector/private-markers.txt). Put things there
 //      that must never be public: your name, usernames, device or room names. The file stays on your machine.
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -86,7 +86,7 @@ function main() {
   }
 
   // 3. private markers, current files and every revision in history
-  const markersPath = process.env.LISTEN_STATS_PRIVATE_MARKERS || join(homedir(), ".ai", "listen-statistics", "private-markers.txt");
+  const markersPath = process.env.GOLDEN_HOUR_SELECTOR_PRIVATE_MARKERS || join(homedir(), ".ai", "golden-hour-selector", "private-markers.txt");
   let markerNote;
   if (!existsSync(markersPath)) {
     markerNote = `private markers: none (no file at ${markersPath}); add one to also block your own names`;

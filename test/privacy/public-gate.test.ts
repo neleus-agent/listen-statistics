@@ -29,7 +29,7 @@ function commit(dir: string, msg: string) {
 }
 function git(dir: string, ...a: string[]) { execFileSync("git", a, { cwd: dir, stdio: "pipe" }); }
 function gate(root: string, markers = NO_MARKERS) {
-  const r = spawnSync(process.execPath, [GATE, "--root", root], { encoding: "utf8", env: { ...process.env, LISTEN_STATS_PRIVATE_MARKERS: markers } });
+  const r = spawnSync(process.execPath, [GATE, "--root", root], { encoding: "utf8", env: { ...process.env, GOLDEN_HOUR_SELECTOR_PRIVATE_MARKERS: markers } });
   return { ok: r.status === 0, out: r.stdout + r.stderr };
 }
 

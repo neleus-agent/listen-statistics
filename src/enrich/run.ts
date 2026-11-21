@@ -20,7 +20,7 @@ export interface EnrichFileOptions {
 
 /** MusicBrainz asks every client for an identifying User-Agent; MUSICBRAINZ_CONTACT adds your own contact. */
 export function mbUserAgent(): string {
-  return `listen-statistics/0.3.0 ( ${process.env.MUSICBRAINZ_CONTACT || "open-source MCP connector"} )`;
+  return `golden-hour-selector/0.4.0 ( ${process.env.MUSICBRAINZ_CONTACT || "open-source MCP connector"} )`;
 }
 
 async function loadJson<T extends object>(path: string | undefined, empty: () => T): Promise<T> {
